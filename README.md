@@ -1,5 +1,5 @@
 # BetterPole
-Bot based in pilaricabot from @Karucida.\
+Bot based in pilaricabot from @Karucida.
 
 # Getting Started
 Starting the bot is really easy: first, you only need to get a Telegram API token, and store it in a .token file.\

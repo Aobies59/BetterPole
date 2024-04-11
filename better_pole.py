@@ -91,7 +91,7 @@ def info(message):
 Funcionamiento: Todos los días, entre las 20:00 y 23:59, avisará de que faltan cinco minutos. Cinco minutos después, se activará la pole.\n \
 Para reclamar la pole, debes escribir 'pole', 'subpole' o 'bronce'. Pole son 3 puntos, subpole 1 y bronce 0.5.")
 
-@bot.message_handler(func=lambda message: message.text == "pole")
+@bot.message_handler(func=lambda message: message.text.lower() == "pole")
 def react_to_pole(message):
     data = get_data(message.chat.id)
     global pole_open
@@ -108,7 +108,7 @@ def react_to_pole(message):
     elif not pole_open:
         bot.reply_to(message, "Aún no, crack")
 
-@bot.message_handler(func=lambda message: message.text == "subpole")
+@bot.message_handler(func=lambda message: message.text.lower() == "subpole")
 def react_to_subpole(message):
     data = get_data(message.chat.id)
     global pole_open
@@ -119,7 +119,7 @@ def react_to_subpole(message):
         update_score(message.chat.id, message.from_user.id, message.from_user.username, "subpole")
         bot.reply_to(message, f"El usuario {message.from_user.username} ha conseguido la subpole")
 
-@bot.message_handler(func=lambda message: message.text == "bronce")
+@bot.message_handler(func=lambda message: message.text.lower() == "bronce")
 def react_to_bronce(message):
     data = get_data(message.chat.id)
     global pole_open

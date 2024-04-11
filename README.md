@@ -7,3 +7,8 @@ Then, starting and running the docker container: inside the BetterPole folder, r
 `docker build -t betterpole .`
 `docker run betterpole`
 Then, add the bot to the chat and send "/start", and the magic will start!
+
+# Commands
+`/info` Sends some info on how the bot works
+`/start` Starts the bot, necessary when adding the bot to a new group
+`/score` To see the players' score.

@@ -4,7 +4,7 @@ FROM python:3.9
 # Set a working directory for your script
 WORKDIR /betterpole
 
-COPY --from=source . ./
+RUN git clone https://github.com/aobies59/better_pole.git .
 
 # Install any required dependencies (if applicable)
 RUN ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime

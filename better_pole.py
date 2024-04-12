@@ -15,7 +15,7 @@ pole_open = False
 initial_pole_day = {"pole_user": "", "pole_done": False, "subpole_user": "", "subpole_done": False, "bronce_user": "", "bronce_done": False}
 
 try:
-    with open('.token') as f:
+    with open('storage/.token') as f:
         token = f.read()
 except:
     print("Expected .token file with Telegram API token in the current directory")

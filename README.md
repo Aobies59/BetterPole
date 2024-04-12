@@ -13,4 +13,5 @@ Then, add the bot to the chat and send "/start", and the magic will start!
 `/score` To see the players' score.\
 `pole` When active and unclaimed, claims the pole for 3 points\
 `subpole` When active and unclaimed, claims the subpole for 1 point\
-`bronce` When active and unclaimed, claims the bronce for 0.5 points
+`bronce` When active and unclaimed, claims the bronce for 0.5 points\
+`/chibitext` An internal joke, ignore that one

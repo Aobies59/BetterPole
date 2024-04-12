@@ -310,14 +310,14 @@ def schedule_functionality():
         timer.start()
 
     schedule.every().day.at("00:00", "Europe/Madrid").do(send_reminder)
-    send_reminder(datetime.now().hour, datetime.now().minute)
-    """    current_time = datetime.now()
-        if current_time.hour > 20:
-            score_data = json.load(open("storage/score.json"))
-            for chat in score_data.keys():
-                bot.send_message(chat, "El bot ha sido reiniciado después de las 20:00, hoy no hay pole :(")
-        else:
-            send_reminder()"""
+
+    current_time = datetime.now()
+    if current_time.hour > 20:
+        score_data = json.load(open("storage/score.json"))
+        for chat in score_data.keys():
+            bot.send_message(chat, "El bot ha sido reiniciado después de las 20:00, hoy no hay pole :(")
+    else:
+        send_reminder()
 
     while True:
         schedule.run_pending()

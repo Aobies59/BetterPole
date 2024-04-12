@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 import schedule
 import threading
 import time
+import os
+
 
 pole_open = False
 initial_pole_day = {"pole_user": "", "pole_done": False, "subpole_user": "", "subpole_done": False, "bronce_user": "", "bronce_done": False}
@@ -32,12 +34,14 @@ def get_data(chat_id):
             json.dump(json_dict, f, indent=4)
     return json_dict[str(chat_id)]
 
+
 try:
     with open('pole_day.json') as f:
         pole_day = json.load(f)
 except:
     with open("pole_day.json", "w") as f:
         f.write("{}")
+
 
 def update_score(chat_id, user, username, pole_type):
     with open("score.json", "r") as f:
@@ -47,10 +51,7 @@ def update_score(chat_id, user, username, pole_type):
     if user not in list(score.keys()):
         score[user] = {"username": username, "score": 0}
 
-    if pole_type == "pole":
-        score[user]["score"] += 3
-    elif pole_type == "subpole":
-        score[user]["score"] += 1
+    if pole_type == "pole":from telebot import TeleBot
     elif pole_type == "bronce":
         score[user]["score"] += 0.5
     else:
@@ -65,10 +66,6 @@ def update_data(chat_id, data):
     json_dict[str(chat_id)] = data
     with open('pole_day.json', 'w') as f:
         json.dump(json_dict, f, indent=4)
-
-def update_json(dictionary):
-    with open('pole_day.json', 'w') as f:
-                f.write(json.dumps(dictionary, indent=4))
 
 bot = telebot.TeleBot(token)
 
@@ -99,8 +96,12 @@ def react_to_pole(message):
         data['pole_user'] = message.from_user.id
         data['pole_done'] = True
         update_data(message.chat.id, data)
-        update_score(message.chat.id, message.from_user.id, message.from_user.username, "pole")
-        bot.reply_to(message, f"El usuario {message.from_user.username} ha conseguido la pole")
+        if message.from_user.username:
+            update_score(message.chat.id, message.from_user.id, message.from_user.username, "pole")
+            bot.reply_to(message, f"El usuario {message.from_user.username} ha conseguido la pole")
+        else:
+            update_score(message.chat.id, message.from_user.id, message.from_user.first_name, "pole")
+            bot.reply_to(message, f"El usuario {message.from_user.first_name} ha conseguido la pole")
     elif pole_open and data["pole_done"] and message.from_user.id != data["pole_user"]:
         bot.reply_to(message, "Casi...")
     elif pole_open and data["pole_done"]:
@@ -114,10 +115,14 @@ def react_to_subpole(message):
     global pole_open
     if pole_open and message.from_user.id != data['subpole_user'] and not data['subpole_done'] and message.from_user.id != data['pole_user'] and data["pole_done"]:
         data['subpole_user'] = message.from_user.id
-        data['subpole_done'] = "True"
+        data['subpole_done'] = True
         update_data(message.chat.id, data)
-        update_score(message.chat.id, message.from_user.id, message.from_user.username, "subpole")
-        bot.reply_to(message, f"El usuario {message.from_user.username} ha conseguido la subpole")
+        if message.from_user.username:
+            update_score(message.chat.id, message.from_user.id, message.from_user.username, "subpole")
+            bot.reply_to(message, f"El usuario {message.from_user.username} ha conseguido la subpole")
+        else:
+            update_score(message.chat.id, message.from_user.id, message.from_user.first_name, "subpole")
+            bot.reply_to(message, f"El usuario {message.from_user.first_name} ha conseguido la subpole")
 
 @bot.message_handler(func=lambda message: message.text.lower() == "bronce")
 def react_to_bronce(message):
@@ -126,10 +131,14 @@ def react_to_bronce(message):
     if pole_open and message.from_user.id != data['bronce_user'] and not data['bronce_done'] and message.from_user.id != data['subpole_user'] and \
     data['subpole_done'] and message.from_user.id != data['pole_user'] and data["pole_done"]: 
         data['bronce_user'] = message.from_user.id
-        data['bronce_done'] = "True"
+        data['bronce_done'] = True
         update_data(message.chat.id, data)
-        update_score(message.chat.id, message.from_user.id, message.from_user.username, "bronce")
-        bot.reply_to(message, f"El usuario {message.from_user.username} ha conseguido el bronce")
+        if message.from_user.username:
+            update_score(message.chat.id, message.from_user.id, message.from_user.username, "bronce")
+            bot.reply_to(message, f"El usuario {message.from_user.username} ha conseguido el bronce")
+        else:
+            update_score(message.chat.id, message.from_user.id, message.from_user.first_name, "bronce")
+            bot.reply_to(message, f"El usuario {message.from_user.first_name} ha conseguido el bronce")
 
 @bot.message_handler(commands=["score"])
 def print_score(message):
@@ -142,59 +151,79 @@ def print_score(message):
         for item in score:
             message_string += f"{score[item]['username']}: {score[item]['score']}\n"
         bot.reply_to(message, message_string)
+   
+@bot.message_handler(func=lambda message: "pilarica" in message.text.lower())
+def reply_to_pilarica(message):
+    bot.reply_to(message, "No me hables de esa puta")
 
-def send_reminder(set_time = None):
-    global pole_open
-    pole_open = False
-    with open('pole_day.json', 'w') as f:
-        json_content = {}
-        with open("score.json", "r") as score:
-            score = json.load(score)
-        for i in score.keys():
-            json_content[i] = initial_pole_day
-        json.dump(json_content, f, indent=4)
+@bot.message_handler(func=lambda message: message.text.lower() == "hola")
+def reply_to_hola(message):
+    bot.reply_to(message, "Que te calles la puta boca subnormal")
+
+@bot.message_handler(func=lambda message: message.text.lower() == "pole canaria")
+def pole_canaria(message):
+    bot.reply_to(message, "Callate africano")
+
+@bot.message_handler(func=lambda message: message.text.lower() == "pole andaluza")
+def pole_canaria(message):
+    bot.reply_to(message, "Gitano")
 
 
-    if not set_time:
-        # generate a random hour between 8pm and 12am
-        hour = random.randint(20, 23)
-        minute = random.randint(0, 59)
-         # schedule the "five minutes left" message
-        target_time = datetime.now() + timedelta(hours=hour, minutes=minute)
-    else:
-        hour = set_time[0]
-        minute = set_time[1]
-        target_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day, hour, minute)
 
-    print(target_time)
-
-    def send_five_minutes_left():
-        with open("score.json", "r") as f:
-            score = json.load(f)
-        for i in score.keys():
-            bot.send_message(i, "5 minutos para la pole...")
-
-    def send_done():
-        with open("score.json", "r") as f:
-            score = json.load(f)
-        for i in score.keys():
-            bot.send_message(i, "La pole está activa!")
-        global pole_open
-
-    delay = (target_time - datetime.now()).total_seconds()
-
-    timer = threading.Timer(delay, send_five_minutes_left)
-    timer.start()
-
-    timer = threading.Timer(delay + 300, send_done)
-    timer.start()
-        
-schedule.every().day.at("00:00", "Europe/Madrid").do(send_reminder)
 pole_open = True
 
-send_reminder([20,00])  # the first time it will run at 20:00
-
 def schedule_functionality():
+    def send_reminder(set_time = None):
+        global pole_open
+        pole_open = False
+        with open('pole_day.json', 'w') as f:
+            json_content = {}
+            with open("score.json", "r") as score:
+                score = json.load(score)
+            for i in score.keys():
+                json_content[i] = initial_pole_day
+            json.dump(json_content, f, indent=4)
+
+
+        if not set_time:
+            # generate a random hour between 8pm and 12am
+            hour = random.randint(20, 23)
+            minute = random.randint(0, 59)
+            # schedule the "five minutes left" message
+            target_time = datetime.now() + timedelta(hours=hour, minutes=minute)
+        else:
+            hour = set_time[0]
+            minute = set_time[1]
+            target_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day, hour, minute)
+
+        print(target_time)
+
+        def send_five_minutes_left():
+            with open("score.json", "r") as f:
+                score = json.load(f)
+            for i in score.keys():
+                bot.send_message(i, "5 minutos para la pole...")
+
+        def send_done():
+            with open("score.json", "r") as f:
+                score = json.load(f)
+            for i in score.keys():
+                bot.send_message(i, "La pole está activa!")
+            global pole_open
+            pole_open = True
+
+        delay = (target_time - datetime.now()).total_seconds()
+
+        timer = threading.Timer(delay, send_five_minutes_left)
+        timer.start()
+
+        timer = threading.Timer(delay + 300, send_done)
+        timer.start()
+
+    schedule.every().day.at("00:00", "Europe/Madrid").do(send_reminder)
+
+    send_reminder([21,14])
+
     while True:
         schedule.run_pending()
         time.sleep(1)
@@ -205,5 +234,3 @@ schedule_thread.start()
 print("Started functionality!")
 
 bot.infinity_polling()
-
-

@@ -7,6 +7,9 @@ import schedule
 import threading
 import time
 import os
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 
 pole_open = False
 initial_pole_day = {"pole_user": "", "pole_done": False, "subpole_user": "", "subpole_done": False, "bronce_user": "", "bronce_done": False}
@@ -203,6 +206,53 @@ def chibi(message):
 def alexia(message):
     bot.reply_to(message, "Callate alexia")
 
+@bot.message_handler(commands=["chibitext"])
+def chibi_text(message):
+    try:
+        image = Image.open("storage/Chibi_meditativo.png")
+    except:
+        bot.reply_to(message, "Chibi meditativo no está disponible")
+        return
+
+    try:
+        font = ImageFont.truetype("storage/sans.ttf", 20)
+    except:
+        bot.reply_to(message, "Chibi meditativo no está disponible")
+        return
+
+    draw = ImageDraw.Draw(image)
+
+    max_line_length = 33
+    words = message.text[11:].split()
+    lines = []
+    current_line = ""
+
+    for word in words:
+        if len(current_line) + len(word) + 1 <= max_line_length:
+            current_line += word + " "
+        else:
+            lines.append(current_line)
+            current_line = word + " "
+
+    if current_line:
+        lines.append(current_line)
+
+    text = "\n".join(lines)
+
+    # get text height to center text vertically
+    ascent, descent = font.getmetrics()
+    text_height = ascent + descent
+    draw.multiline_text((10, (image.height - text_height) // 2), text, font=font, fill="white")
+
+    image.save("storage/chibi_text.png")
+
+    with open("storage/chibi_text.png", 'rb') as chibi_text:
+        image_data = chibi_text.read()
+
+    bot.send_photo(message.chat.id, image_data)
+
+    os.remove("storage/chibi_text.png")
+
 pole_open = True
 
 def schedule_functionality():
@@ -223,11 +273,11 @@ def schedule_functionality():
             hour = random.randint(20, 23)
             minute = random.randint(0, 59)
             # schedule the "five minutes left" message
-            target_time = datetime.now() + timedelta(hours=hour, minutes=minute)
+            target_time = datetime.now().replace(hour=hour, minute=minute)
         else:
             hour = set_time[0]
             minute = set_time[1]
-            target_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day, hour, minute)
+            target_time = datetime.now().replace(hour=hour, minute=minute)
 
         print(target_time)
 

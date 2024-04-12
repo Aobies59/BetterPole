@@ -1,5 +1,3 @@
 .token
 betterpole_output.txt
-chibi_images
-pole_day.json
-score.json
+.dockerignore

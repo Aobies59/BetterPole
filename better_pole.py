@@ -20,11 +20,11 @@ try:
         token = f.read()
 except:
     print("Expected .token file with Telegram API token in the current directory")
-    return
+    exit(1)
 
 if token == "":
     print("Expected .token file with Telegram API token in the current directory")
-    return
+    exit(1)
 
 try:
     with open('storage/score.json') as f:

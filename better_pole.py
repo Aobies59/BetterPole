@@ -14,6 +14,7 @@ from PIL import ImageFont
 pole_open = False
 initial_pole_day = {"pole_user": "", "pole_done": False, "subpole_user": "", "subpole_done": False, "bronce_user": "", "bronce_done": False}
 
+print("Attempting to read token...")
 try:
     with open('storage/.token') as f:
         token = f.read()

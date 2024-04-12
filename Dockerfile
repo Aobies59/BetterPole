@@ -4,15 +4,16 @@ FROM python:3.9
 # Set a working directory for your script
 WORKDIR /betterpole
 
-COPY requirements.txt .
-COPY better_pole.py .
-COPY .token .
-COPY pole_day.json .
-COPY score.json .
+COPY storage ./storage
+# create a folder to store all chibi images
+RUN mkdir storage/chibi_images
+COPY .token .token
+COPY better_pole.py better_pole.py
+COPY requirements.txt requirements.txt
 
 # Install any required dependencies (if applicable)
 RUN ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
-RUN pip install -r requirements.txt
+RUN pip install -r ./requirements.txt
 
 # Run your Python script as the entrypoint
 CMD ["python","-u","better_pole.py"]

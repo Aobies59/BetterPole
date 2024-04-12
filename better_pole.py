@@ -8,7 +8,6 @@ import threading
 import time
 import os
 
-
 pole_open = False
 initial_pole_day = {"pole_user": "", "pole_done": False, "subpole_user": "", "subpole_done": False, "bronce_user": "", "bronce_done": False}
 
@@ -19,32 +18,32 @@ except:
     print("Expected .token file with Telegram API token in the current directory")
 
 try:
-    with open('score.json') as f:
+    with open('storage/score.json') as f:
         json.load(f)
 except:
-    with open("score.json", "w") as f:
+    with open("storage/score.json", "w") as f:
         f.write("{}")
 
 def get_data(chat_id):
-    with open('pole_day.json') as f:
+    with open('storage/pole_day.json') as f:
         json_dict = json.load(f)
     if str(chat_id) not in list(json_dict.keys()):
         json_dict[str(chat_id)] = initial_pole_day
-        with open('pole_day.json', 'w') as f:
+        with open('storage/pole_day.json', 'w') as f:
             json.dump(json_dict, f, indent=4)
     return json_dict[str(chat_id)]
 
 
 try:
-    with open('pole_day.json') as f:
+    with open('storage/pole_day.json') as f:
         pole_day = json.load(f)
 except:
-    with open("pole_day.json", "w") as f:
+    with open("storage/pole_day.json", "w") as f:
         f.write("{}")
 
 
 def update_score(chat_id, user, username, pole_type):
-    with open("score.json", "r") as f:
+    with open("storage/score.json", "r") as f:
         score_data = json.load(f)
     score = score_data[str(chat_id)]
     user = str(user)
@@ -57,27 +56,27 @@ def update_score(chat_id, user, username, pole_type):
     else:
         print(f"Wrong pole type: {pole_type}")
     score_data[str(chat_id)] = score
-    with open("score.json", "w") as f:
+    with open("storage/score.json", "w") as f:
         json.dump(score_data, f, indent=4)
 
 def update_data(chat_id, data):
-    with open('pole_day.json') as f:
+    with open('storage/pole_day.json') as f:
         json_dict = json.load(f)
     json_dict[str(chat_id)] = data
-    with open('pole_day.json', 'w') as f:
+    with open('storage/pole_day.json', 'w') as f:
         json.dump(json_dict, f, indent=4)
 
 bot = telebot.TeleBot(token)
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    with open("score.json", "r") as f:
+    with open("storage/score.json", "r") as f:
         score = json.load(f)
     if str(message.chat.id) in list(score.keys()):
         bot.send_message(message.chat.id, "El bot ya está ejecutándose en este chat")
     else:
         score[message.chat.id] = {}
-        with open("score.json", "w") as f:
+        with open("storage/score.json", "w") as f:
             json.dump(score, f, indent=4)
         bot.send_message(message.chat.id, "Pole bot iniciado en este chat!")
 
@@ -90,6 +89,11 @@ Para reclamar la pole, debes escribir 'pole', 'subpole' o 'bronce'. Pole son 3 p
 
 @bot.message_handler(func=lambda message: message.text.lower() == "pole")
 def react_to_pole(message):
+    with open('storage/score.json') as f:
+        score_data = json.load(f)
+    if str(message.chat.id) not in score_data:
+        bot.reply_to(message, "El bot no está inicializado en este chat. Haz /start para inicializarlo")
+        return
     data = get_data(message.chat.id)
     global pole_open
     if pole_open and message.from_user.id != data["pole_user"] and not data["pole_done"]:
@@ -111,6 +115,11 @@ def react_to_pole(message):
 
 @bot.message_handler(func=lambda message: message.text.lower() == "subpole")
 def react_to_subpole(message):
+    with open('storage/score.json') as f:
+        score_data = json.load(f)
+    if str(message.chat.id) not in score_data:
+        bot.reply_to(message, "El bot no está inicializado en este chat. Haz /start para inicializarlo")
+        return
     data = get_data(message.chat.id)
     global pole_open
     if pole_open and message.from_user.id != data['subpole_user'] and not data['subpole_done'] and message.from_user.id != data['pole_user'] and data["pole_done"]:
@@ -126,6 +135,11 @@ def react_to_subpole(message):
 
 @bot.message_handler(func=lambda message: message.text.lower() == "bronce")
 def react_to_bronce(message):
+    with open('storage/score.json') as f:
+        score_data = json.load(f)
+    if str(message.chat.id) not in score_data:
+        bot.reply_to(message, "El bot no está inicializado en este chat. Haz /start para inicializarlo")
+        return
     data = get_data(message.chat.id)
     global pole_open
     if pole_open and message.from_user.id != data['bronce_user'] and not data['bronce_done'] and message.from_user.id != data['subpole_user'] and \
@@ -142,8 +156,12 @@ def react_to_bronce(message):
 
 @bot.message_handler(commands=["score"])
 def print_score(message):
-    with open('score.json') as f:
-        score = json.load(f)[str(message.chat.id)]
+    with open('storage/score.json') as f:
+        score_data = json.load(f)
+        if str(message.chat.id) not in score_data:
+            bot.reply_to(message, "El bot no está inicializado en este chat. Haz /start para inicializarlo")
+            return
+        score = score_data[str(message.chat.id)]
     if score == {}:
         bot.reply_to(message, "Nadie ha conseguido la pole aún")
     else:
@@ -168,7 +186,22 @@ def pole_canaria(message):
 def pole_canaria(message):
     bot.reply_to(message, "Gitano")
 
+@bot.message_handler(func=lambda message: message.text.lower() == "chibi")
+def chibi(message):
+    chibi_images_folder = os.path.abspath("storage/chibi_images")
+    chibi_images = [f for f in os.listdir(chibi_images_folder)]
+    if not chibi_images:
+        bot.reply_to(message, "Error: no tengo imágenes de chibi :(")
+    random_chibi = random.choice(chibi_images)
 
+    with open(os.path.join(chibi_images_folder, random_chibi), 'rb') as random_chibi_image:
+        image_data = random_chibi_image.read()
+
+    bot.send_photo(message.chat.id, image_data)
+
+@bot.message_handler(func=lambda message: message.text == ":c")
+def alexia(message):
+    bot.reply_to(message, "Callate alexia")
 
 pole_open = True
 
@@ -176,9 +209,9 @@ def schedule_functionality():
     def send_reminder(set_time = None):
         global pole_open
         pole_open = False
-        with open('pole_day.json', 'w') as f:
+        with open('storage/pole_day.json', 'w') as f:
             json_content = {}
-            with open("score.json", "r") as score:
+            with open("storage/score.json", "r") as score:
                 score = json.load(score)
             for i in score.keys():
                 json_content[i] = initial_pole_day
@@ -199,13 +232,13 @@ def schedule_functionality():
         print(target_time)
 
         def send_five_minutes_left():
-            with open("score.json", "r") as f:
+            with open("storage/score.json", "r") as f:
                 score = json.load(f)
             for i in score.keys():
                 bot.send_message(i, "5 minutos para la pole...")
 
         def send_done():
-            with open("score.json", "r") as f:
+            with open("storage/score.json", "r") as f:
                 score = json.load(f)
             for i in score.keys():
                 bot.send_message(i, "La pole está activa!")
@@ -222,7 +255,13 @@ def schedule_functionality():
 
     schedule.every().day.at("00:00", "Europe/Madrid").do(send_reminder)
 
-    send_reminder([21,14])
+    current_time = datetime.now()
+    if current_time.hour > 20:
+        score_data = json.load(open("storage/score.json"))
+        for chat in score_data.keys():
+            bot.send_message(chat, "El bot ha sido reiniciado después de las 20:00, hoy no hay pole :(")
+    else:
+        send_reminder()
 
     while True:
         schedule.run_pending()

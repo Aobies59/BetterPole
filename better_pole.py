@@ -247,7 +247,7 @@ def chibi_text(message):
 
     # get text height to center text vertically
     ascent, descent = font.getmetrics()
-    text_height = (ascent + descent) * len(text.split("\n"))
+    text_height = (ascent + descent) * len(lines)
     draw.multiline_text((10, (image.height - text_height) // 2), text, font=font, fill="white")
 
     image.save("storage/chibi_text.png")

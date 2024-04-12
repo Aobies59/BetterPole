@@ -312,10 +312,13 @@ def schedule_functionality():
     schedule.every().day.at("00:00", "Europe/Madrid").do(send_reminder)
 
     current_time = datetime.now()
-    if current_time.hour > 20:
-        score_data = json.load(open("storage/score.json"))
-        for chat in score_data.keys():
-            bot.send_message(chat, "El bot ha sido reiniciado después de las 20:00, hoy no hay pole :(")
+    if current_time.hour > 20:  # if after 20pm, send reminder at a random time of the day
+        hour = random.randint(current_time.hour, 23)
+        if hour == current_time.hour:
+            minute = random.randint(current_time.minute, 59)
+        else:
+            minute = random.randint(0, 59)
+        send_reminder((hour, minute))
     else:
         send_reminder()
 

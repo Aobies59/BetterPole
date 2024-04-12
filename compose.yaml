@@ -1,7 +1,0 @@
-services:
-  betterpole:
-    image: aobies59/better_pole:latest
-    volumes:
-    - ./storage/:/betterpole/storage
-    environment:
-    - TZ=Europe/Madrid

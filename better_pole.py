@@ -10,6 +10,8 @@ import os
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
+import operator
+import sys
 
 pole_open = False
 initial_pole_day = {"pole_user": "", "pole_done": False, "subpole_user": "", "subpole_done": False, "bronce_user": "", "bronce_done": False}
@@ -166,12 +168,20 @@ def react_to_bronce(message):
 
 @bot.message_handler(commands=["score"])
 def print_score(message):
-    with open('storage/score.json') as f:
-        score_data = json.load(f)
-        if str(message.chat.id) not in score_data:
-            bot.reply_to(message, "El bot no está inicializado en este chat. Haz /start para inicializarlo")
-            return
-        score = score_data[str(message.chat.id)]
+    try:
+        with open('storage/score.json') as f:
+            score_data = json.load(f)
+    except:
+        with open('storage/score.json', 'w') as f:
+            json.dump({}, f)
+            score_data = {}
+    if str(message.chat.id) not in score_data:
+        bot.reply_to(message, "El bot no está inicializado en este chat. Haz /start para inicializarlo")
+        return
+    score = score_data[str(message.chat.id)]
+
+    score = dict(sorted(score.items(), key=lambda x: x[1]["score"], reverse=True))
+
     if score == {}:
         bot.reply_to(message, "Nadie ha conseguido la pole aún")
     else:
@@ -309,21 +319,29 @@ def schedule_functionality():
         timer = threading.Timer(delay, send_five_minutes_left)
         timer.start()
 
-        timer = threading.Timer(delay + 300, send_done)
+        if len(sys.argv) == 1:
+            delay += 300
+        else:
+            delay += 1
+        timer = threading.Timer(delay, send_done)
         timer.start()
 
     schedule.every().day.at("00:00", "Europe/Madrid").do(send_reminder)
 
     current_time = datetime.now()
-    if current_time.hour > 20:  # if after 20pm, send reminder at a random time of the day
-        hour = random.randint(current_time.hour, 23)
-        if hour == current_time.hour:
-            minute = random.randint(current_time.minute, 59)
+    if len(sys.argv) == 1:
+        if current_time.hour > 20:  # if after 20pm, send reminder at a random time of the day
+            hour = random.randint(current_time.hour, 23)
+            if hour == current_time.hour:
+                minute = random.randint(current_time.minute, 59)
+            else:
+                minute = random.randint(0, 59)
+            send_reminder((hour, minute))
         else:
-            minute = random.randint(0, 59)
-        send_reminder((hour, minute))
+            send_reminder()
     else:
-        send_reminder()
+        send_reminder([current_time.hour, current_time.minute])
+    
 
     while True:
         schedule.run_pending()

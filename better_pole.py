@@ -92,9 +92,7 @@ def start(message):
 @bot.message_handler(commands=["info"])
 def info(message):
     bot.send_message(message.chat.id, \
-    "Pole bot por @Aobies59\n \
-Funcionamiento: Todos los días, entre las 20:00 y 23:59, avisará de que faltan cinco minutos. Cinco minutos después, se activará la pole.\n \
-Para reclamar la pole, debes escribir 'pole', 'subpole' o 'bronce'. Pole son 3 puntos, subpole 1 y bronce 0.5.")
+    "Pole bot por @Aobies59\nFuncionamiento: Todos los días, entre las 20:00 y 23:59, avisará de que faltan cinco minutos. Cinco minutos después, se activará la pole.\nPara reclamar la pole, debes escribir 'pole', 'subpole' o 'bronce'. Pole son 3 puntos, subpole 1 y bronce 0.5.")
 
 @bot.message_handler(func=lambda message: message.text.lower() == "pole")
 def react_to_pole(message):
@@ -212,6 +210,10 @@ def chibi(message):
 def alexia(message):
     bot.reply_to(message, "Callate alexia")
 
+@bot.message_handler(func=lambda message: message.text == ":(")
+def sad_face(message):
+    bot.reply_to(message, ":)")
+
 @bot.message_handler(commands=["chibitext"])
 def chibi_text(message):
     try:
@@ -258,8 +260,6 @@ def chibi_text(message):
     bot.send_photo(message.chat.id, image_data)
 
     os.remove("storage/chibi_text.png")
-
-pole_open = True
 
 def schedule_functionality():
     def send_reminder(set_time = None):

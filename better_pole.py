@@ -59,7 +59,10 @@ def update_score(chat_id, user, username, pole_type):
     if user not in list(score.keys()):
         score[user] = {"username": username, "score": 0}
 
-    if pole_type == "pole":from telebot import TeleBot
+    if pole_type == "pole":
+        score[user]["score"] += 3
+    elif pole_type == "subpole":
+        score[user]["score"] += 1
     elif pole_type == "bronce":
         score[user]["score"] += 0.5
     else:
@@ -306,7 +309,7 @@ def schedule_functionality():
         timer = threading.Timer(delay, send_five_minutes_left)
         timer.start()
 
-        timer = threading.Timer(delay + 1, send_done)
+        timer = threading.Timer(delay + 300, send_done)
         timer.start()
 
     schedule.every().day.at("00:00", "Europe/Madrid").do(send_reminder)

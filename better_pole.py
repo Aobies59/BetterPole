@@ -352,6 +352,6 @@ def schedule_functionality():
 schedule_thread = threading.Thread(target=schedule_functionality)
 schedule_thread.start()
 
-print("SERUJI NO LEAS ESTO MARICÓN")
+print("Started BetterPole functionality!")
 
 bot.infinity_polling()

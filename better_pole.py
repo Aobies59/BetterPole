@@ -334,6 +334,8 @@ def schedule_functionality():
             hour = random.randint(current_time.hour, 23)
             if hour == current_time.hour:
                 minute = random.randint(current_time.minute, 59)
+            elif hour == 23:
+                minute = random.randint(0, 54)
             else:
                 minute = random.randint(0, 59)
             send_reminder((hour, minute))

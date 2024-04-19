@@ -206,16 +206,17 @@ def pole_canaria(message):
 def pole_canaria(message):
     bot.reply_to(message, "Gitano")
 
-@bot.message_handler(func=lambda message: message.text.lower() == "chibi")
-def chibi(message):
-    chibi_images_folder = os.path.abspath("storage/chibi_images")
-    chibi_images = [f for f in os.listdir(chibi_images_folder)]
-    if not chibi_images:
-        bot.reply_to(message, "Error: no tengo imágenes de chibi :(")
-    random_chibi = random.choice(chibi_images)
+photo_name_list = ["chibi", "cristian"]
+@bot.message_handler(func=lambda message: message.text.lower() in photo_name_list)
+def photo_name(message):
+    name_images_folder_path = os.path.abspath("storage/" + message + "_images")
+    name_images_list = [f for f in os.listdir(name_images_folder_path)]
+    if not name_images_list:
+        bot.reply_to(message, "Error: no tengo imágenes de " + message + " :(")
+    chosen_img = random.choice(name_images_list)
 
-    with open(os.path.join(chibi_images_folder, random_chibi), 'rb') as random_chibi_image:
-        image_data = random_chibi_image.read()
+    with open(os.path.join(name_images_folder_path, chosen_img), 'rb') as img_stream:
+        image_data = img_stream.read()
 
     bot.send_photo(message.chat.id, image_data)
 
